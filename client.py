@@ -43,8 +43,10 @@ class AntColony:
         self.ant_count = self.node_count
 
     def start(self):
-        for _ in range(100):
+        for i in range(2500):
             self.iterate()
+            if i % 100 == 0:
+                print(f"Iteration {i} of 2500: Best cost = {self.global_cost}")
 
     def iterate(self):
         for _ in range(self.ant_count):
@@ -52,8 +54,6 @@ class AntColony:
         self.updatePheromones()
         self.cost = inf
         self.solution = []
-        print(self.global_solution)
-        print(self.global_cost)
 
     def walkAnt(self):
         current = numpy.random.randint(0, self.node_count)
@@ -119,3 +119,5 @@ if __name__ == "__main__":
     # We will receive the data from server, this is temporary
     a = AntColony(getKMatrix(readFile("data/small")))
     a.start()
+    print(f"Final cost = {a.global_cost}")
+    print(f"Final solution: {a.global_solution}")
