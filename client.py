@@ -21,6 +21,10 @@ def getRandomNode(probabilities: list[float]):
 
 
 class AntColony:
+    """
+    Based on https://www.researchgate.net/publication/277284831_MAX-MIN_ant_system
+    """
+
     TMIN = 0
     TMAX = 1
     PBEST = 0.05
