@@ -1,0 +1,2 @@
+# PRIR
+Rozproszony algorytm mrówkowy
