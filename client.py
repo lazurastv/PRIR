@@ -33,7 +33,6 @@ class AntColony:
     BETA = 2
 
     def __init__(self, kmatrix) -> None:
-        kmatrix = getKMatrix(readFile("data/small"))
         self.kmatrix = kmatrix
         self.pheromones = [[self.TMAX for _ in kmatrix] for _ in kmatrix]
         self.global_solution = []
@@ -63,7 +62,7 @@ class AntColony:
         cost = 0
 
         while len(visited) < self.node_count:
-            probs = [x if x not in visited else 0 for x in self.getP(current)]
+            probs = self.getP(current, visited)
             nextNode = getRandomNode(probs)
             solution.append(nextNode)
             visited.add(nextNode)
@@ -79,10 +78,10 @@ class AntColony:
             self.global_solution = solution
             self.updateT()
 
-    def getP(self, src):
+    def getP(self, src, visited):
         probabilities = []
         for i in range(len(self.kmatrix)):
-            if src == i:
+            if src == i or i in visited:
                 probabilities.append(0)
                 continue
             pheromone = self.pheromones[src][i]
@@ -96,6 +95,8 @@ class AntColony:
         self.TMAX = 1 / ((1 - self.PERSISTENCE) * self.global_cost)
         pdec = self.PBEST ** (1 / self.ant_count)
         self.TMIN = self.TMAX / (self.ant_count / 2) * (1 - pdec) / pdec
+        if self.TMIN > self.TMAX:
+            self.TMIN = self.TMAX
 
     def updatePheromones(self):
         for i in range(len(self.pheromones)):
@@ -108,7 +109,13 @@ class AntColony:
             self.pheromones[src][dest] += 1 / self.cost
             self.pheromones[dest][src] += 1 / self.cost
 
+        for i in range(len(self.pheromones)):
+            for j in range(len(self.pheromones)):
+                value = self.pheromones[i][j]
+                self.pheromones[i][j] = max(min(value, self.TMAX), self.TMIN)
+
 
 if __name__ == "__main__":
-    a = AntColony([])
+    # We will receive the data from server, this is temporary
+    a = AntColony(getKMatrix(readFile("data/small")))
     a.start()
