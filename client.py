@@ -1,4 +1,5 @@
 from math import inf
+from queue import Queue
 
 import numpy
 
@@ -41,6 +42,8 @@ class AntColony:
         self.cost = inf
         self.node_count = len(kmatrix)
         self.ant_count = self.node_count
+        self.queued_ants = Queue()
+        self.iteration = 0
 
     def start(self):
         for i in range(2500):
@@ -49,11 +52,12 @@ class AntColony:
                 print(f"Iteration {i} of 2500: Best cost = {self.global_cost}")
 
     def iterate(self):
+        self.cost = inf
+        self.solution = []
         for _ in range(self.ant_count):
             self.walkAnt()
         self.updatePheromones()
-        self.cost = inf
-        self.solution = []
+        self.iteration += 1
 
     def walkAnt(self):
         current = numpy.random.randint(0, self.node_count)
@@ -73,10 +77,7 @@ class AntColony:
             self.cost = cost
             self.solution = solution
 
-        if cost < self.global_cost:
-            self.global_cost = cost
-            self.global_solution = solution
-            self.updateT()
+        self.updateGlobal(solution, cost)
 
     def getP(self, src, visited):
         probabilities = []
@@ -91,6 +92,12 @@ class AntColony:
         total = sum(probabilities)
         return [x / total for x in probabilities]
 
+    def updateGlobal(self, solution, cost):
+        if cost < self.global_cost:
+            self.global_cost = cost
+            self.global_solution = solution
+            self.updateT()
+
     def updateT(self):
         self.TMAX = 1 / ((1 - self.PERSISTENCE) * self.global_cost)
         pdec = self.PBEST ** (1 / self.ant_count)
@@ -98,16 +105,24 @@ class AntColony:
         if self.TMIN > self.TMAX:
             self.TMIN = self.TMAX
 
+    def layPheromones(self, solution, cost):
+        for i in range(len(solution) - 1):
+            src = solution[i]
+            dest = solution[i + 1]
+            self.pheromones[src][dest] += 1 / cost
+            self.pheromones[dest][src] += 1 / cost
+
     def updatePheromones(self):
         for i in range(len(self.pheromones)):
             for j in range(len(self.pheromones)):
                 self.pheromones[i][j] *= self.PERSISTENCE
 
-        for i in range(len(self.solution) - 1):
-            src = self.solution[i]
-            dest = self.solution[i + 1]
-            self.pheromones[src][dest] += 1 / self.cost
-            self.pheromones[dest][src] += 1 / self.cost
+        self.layPheromones(self.solution, self.cost)
+
+        if not self.queued_ants.empty():
+            solution, cost = self.queued_ants.get()
+            self.layPheromones(solution, cost)
+            self.updateGlobal(solution, cost)
 
         for i in range(len(self.pheromones)):
             for j in range(len(self.pheromones)):
