@@ -1,8 +1,10 @@
+from time import time_ns
 from mpi4py import MPI
 
 from client import AntColony, getKMatrix
 from server import readFile
 
+start_time = time_ns()
 comm = MPI.COMM_WORLD
 rank = comm.Get_rank()
 size = comm.Get_size()
@@ -28,7 +30,7 @@ for i in range(500):
                         right, 0, None, left, 0)
     colony.queued_ants.put(ant)
     if rank == 0:
-        file.write(f"{i} {colony.global_cost}\n")
+        file.write(f"{i} {colony.global_cost} {time_ns() - start_time}\n")
 
 if rank == 0:
     file.write(f"Best cost: {colony.global_cost}\n")
