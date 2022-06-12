@@ -1,4 +1,6 @@
-def readFile(name: str) -> list[list[float]]:
+from typing import List
+
+def readFile(name: str) -> List[List[float]]:
     with open(name, 'r') as file:
         text = file.read()
         values = text.split()

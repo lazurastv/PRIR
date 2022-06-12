@@ -1,0 +1,16 @@
+docker-compose up -d --scale pc=2
+docker exec -it mrowki_pc_1 bash
+docker exec --user mpiuser -it mrowki_pc_1 bash
+ssh mpiuser@mrowki_pc_2
+
+# ip:1 to liczba procesów, jest opcjonalana
+mpirun -n 2 -host 172.21.0.2:1,172.21.0.3:1 python3 f.py
+
+su mpiuser
+
+# rank 0
+ssh mpiuser@172.20.0.2
+
+# -n 2 w sumie nie potrzebne, bedzie tyle ile jest w hostfile, --map-by mozna kilka na hosta procesow
+mpirun -n 2 -map-by ppr:1:node -hostfile ./hostfiles/h2 python3 f.py
+mpirun -map-by ppr:1:node -hostfile ./hostfiles/h2 python3 f.py

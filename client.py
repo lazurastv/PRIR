@@ -1,10 +1,12 @@
 from math import inf
 from queue import Queue
+from time import time_ns
+from typing import List
 
 import numpy
 
 
-def getKMatrix(nodes: list[list[float]]) -> list[list[float]]:
+def getKMatrix(nodes: List[List[float]]) -> List[List[float]]:
     kmatrix = []
     for i, i_val in enumerate(nodes):
         kmatrix.append([0] * len(nodes))
@@ -15,7 +17,7 @@ def getKMatrix(nodes: list[list[float]]) -> list[list[float]]:
     return kmatrix
 
 
-def getRandomNode(probabilities: list[float]):
+def getRandomNode(probabilities: List[float]):
     return numpy.random.choice(numpy.arange(0, len(probabilities)), p=probabilities)
 
 

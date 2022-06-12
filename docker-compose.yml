@@ -1,0 +1,16 @@
+version: "3.6"
+
+services:
+  pc:
+    build: ./
+    expose:
+      - "22"
+    networks:
+      - net
+
+networks:
+  net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/24
