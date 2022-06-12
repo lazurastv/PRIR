@@ -32,13 +32,13 @@ if parallel_type not in allowed_type:
 failed_read = False
 if rank == 0:
     try:
-        data = readFile("data/" + problem)
+        data = readFile(f"data/{problem}.txt")
     except FileNotFoundError:
         print(f"File data/{problem} doesn't exist.")
         data = None
     if data:
-        file = open(f"results/results_{problem}_{parallel_type}_{size}", "w")
-        file.write(f"Problem size: {problem}\n")
+        file = open(
+            f"results/{problem}_{parallel_type}_{size}.txt", "w")
 else:
     data = None
 
@@ -75,17 +75,13 @@ for i in range(500):
         colony.queued_ants.put(ant)
         colony.updatePheromones()
     if rank == 0:
-        file.write(f"{i} {colony.global_cost} {time_ns() - start_time}\n")
+        file.write(f"{colony.global_cost} {time_ns() - start_time}\n")
         if i % 50 == 0:
             print(f"{i / 5}% complete...")
         stdout.flush()
 
 
 if rank == 0:
-    print(colony.TMAX)
-    print(colony.TMIN)
     print("100% complete...")
     print(f"Best cost: {colony.global_cost}")
-    file.write(f"Best cost: {colony.global_cost}\n")
-    file.write("Path taken: ")
-    file.write(' '.join([str(x) for x in colony.global_solution]))
+    print(f"Path taken: {' '.join([str(x) for x in colony.global_solution])}")

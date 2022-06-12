@@ -1,11 +1,7 @@
 from math import inf
 from queue import Queue
-from time import time_ns
 
 import numpy
-
-from server import readFile
-from sys import argv
 
 
 def getKMatrix(nodes: list[list[float]]) -> list[list[float]]:
@@ -45,21 +41,6 @@ class AntColony:
         self.node_count = len(kmatrix)
         self.ant_count = self.node_count
         self.queued_ants = Queue()
-
-    def start(self, type):
-        file = open(f"results/results_seq_{type}", "w")
-        file.write(f"Problem size: {type}\n")
-        start_time = time_ns()
-        for i in range(500):
-            self.iterate()
-            self.updatePheromones()
-            file.write(f"{i} {self.global_cost} {time_ns() - start_time}\n")
-            if i % 50 == 0:
-                print(f"{i / 5}% complete...")
-
-        file.write(f"Best cost: {self.global_cost}\n")
-        file.write("Path taken: ")
-        file.write(' '.join([str(x) for x in self.global_solution]))
 
     def iterate(self):
         self.cost = inf
@@ -136,12 +117,3 @@ class AntColony:
             for j in range(len(self.pheromones)):
                 value = self.pheromones[i][j]
                 self.pheromones[i][j] = max(min(value, self.TMAX), self.TMIN)
-
-
-if __name__ == "__main__":
-    # We will receive the data from server, this is temporary
-    type = argv[1]
-    colony = AntColony(getKMatrix(readFile("data/" + type)))
-    colony.start(type)
-    print("100% complete...")
-    print(f"Best cost: {colony.global_cost}")
