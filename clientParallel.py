@@ -82,6 +82,8 @@ for i in range(500):
 
 
 if rank == 0:
+    print(colony.TMAX)
+    print(colony.TMIN)
     print("100% complete...")
     print(f"Best cost: {colony.global_cost}")
     file.write(f"Best cost: {colony.global_cost}\n")

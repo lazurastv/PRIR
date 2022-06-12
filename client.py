@@ -108,8 +108,8 @@ class AntColony:
 
     def updateT(self):
         self.TMAX = 1 / ((1 - self.PERSISTENCE) * self.global_cost)
-        pdec = self.PBEST ** (1 / self.ant_count)
-        self.TMIN = self.TMAX / (self.ant_count / 2) * (1 - pdec) / pdec
+        pdec = self.PBEST ** (1 / self.node_count)
+        self.TMIN = self.TMAX / (self.node_count / 2) * (1 - pdec) / pdec
         if self.TMIN > self.TMAX:
             self.TMIN = self.TMAX
 
