@@ -12,37 +12,50 @@ size = comm.Get_size()
 cartesian = comm.Create_cart(dims=[size], periods=[True])
 
 left, right = cartesian.Shift(direction=0, disp=1)
-problem = argv[1]
-parallel_type = argv[2]
-
-allowed_problems = ["small", "medium", "large"]
-allowed_type = ["colony", "ant"]
-if problem not in allowed_problems:
+if len(argv) < 3:
     if rank == 0:
         print(
-            f"Invalid problem size. Choose either {', '.join(allowed_problems)}.")
+            "Usage: clientParallel.py [file name in data/] [parallelization type]")
     exit()
+problem = argv[1]
+parallel_type = argv[2] if len(argv) > 1 else "ant"
+
+allowed_type = ["colony", "ant"]
 if parallel_type not in allowed_type:
     if rank == 0:
         print(
-            f"Invalid paralellization type. Choose either {', '.join(allowed_problems)}.")
+            f"Invalid paralellization type. Choose either {', '.join(allowed_type)}.")
         print("Colony - processes run seperate colonies.")
         print("Ant - processes run seperate ants on one colony.")
     exit()
 
+failed_read = False
 if rank == 0:
-    data = readFile("data/" + problem)
-    file = open(f"results/results_{problem}_{parallel_type}_{size}", "w")
-    file.write(f"Problem size: {problem}\n")
+    try:
+        data = readFile("data/" + problem)
+    except FileNotFoundError:
+        print(f"File data/{problem} doesn't exist.")
+        data = None
+    if data:
+        file = open(f"results/results_{problem}_{parallel_type}_{size}", "w")
+        file.write(f"Problem size: {problem}\n")
 else:
     data = None
 
 data = comm.bcast(data, 0)
+if not data:
+    exit()
+if len(data) < 2:
+    if rank == 0:
+        print("The problem must have at least 4 nodes!")
+    exit()
+
 kmatrix = getKMatrix(data)
-colony = AntColony(kmatrix, parallel_type)
+colony = AntColony(kmatrix)
 ant = None
 if parallel_type == "ant":
     colony.ant_count //= size
+    colony.ant_count = max(colony.ant_count, 1)
 
 for i in range(500):
     colony.iterate()
