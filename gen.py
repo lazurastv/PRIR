@@ -1,9 +1,9 @@
 from random import randint
 
 
-COUNT = 50
+COUNT = 16
 MAX_COORD = 100
-FILENAME = "large"
+FILENAME = "small"
 
 with open("data/" + FILENAME, "w") as file:
     for i in range(COUNT):
